@@ -9,44 +9,71 @@ import java.sql.Statement;
 
 import com.revature.account.Account;
 import com.revature.utll.ConnectionUtll;
+import com.revature.view.LoggedInView;
+import com.revature.view.MainMenu;
 public class AccountDao {
 
 
 	private Account extractAccount(ResultSet result) throws SQLException {
 		int id = result.getInt("id");
-		String buildName = result.getString("build_name");
-		String apartmentNumber = result.getString("apartment_number");
-		return new Account(id, buildName, apartmentNumber);
+		String userName = result.getString("username");
+		String password = result.getString("password");
+		return new Account(id, userName, password);
 	}
 	
-	public Account getAccount(String username, String password) {
+	public Account getAccount(String userName, String passWord) {
+	
 		try(Connection connection = ConnectionUtll.getConnection()) {
-			String sql = "SELECT id, build_name, apartment_number FROM houses"
-					+ " WHERE build_name  = ? and apartment_number = ?";
+			String sql = "SELECT id, username, password FROM client"
+					+ " WHERE username  = ? and password = ?";
 			PreparedStatement statement = connection.prepareStatement(sql);
 			
-			statement.setString(1, username);
-			statement.setString(2, password);
+			statement.setString(1, userName);
+			statement.setString(2, passWord);
 			
 			ResultSet result = statement.executeQuery();
 			
 			if(result.next()) {
 				int id = result.getInt("id");
-				String buildName = result.getString("build_name");
-				String apartmentNumber = result.getString("apartment_number");
-				return new Account(id, buildName, apartmentNumber);
+				String username = result.getString("username");
+				String password = result.getString("password");
+				return new Account(id, username, password);
+				
 			}
 		} catch(SQLException e) {
 			e.printStackTrace();
 			System.out.println();
 			System.out.println();
 		}
-		return null;		
+		System.out.println("Invalid Username or password");
+		return null;
+		
 	}
 
 	public Account createAccount(Account account) {
 		try(Connection connection = ConnectionUtll.getConnection()) {
-			String sql = "INSERT INTO houses (build_name, apartment_number) " +
+			String sql = "INSERT INTO client (username, password) " +
+					" VALUES (?, ?) RETURNING *";
+			PreparedStatement statement = connection.prepareStatement(sql);
+			
+			statement.setString(1, account.getUserName());
+			statement.setString(2, account.getPassword());
+			
+			ResultSet result = statement.executeQuery();
+			
+			if(result.next()) {
+				return extractAccount(result);
+			}
+			
+		} catch(SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	public Account createCheckingAccount(Account account) {
+		try(Connection connection = ConnectionUtll.getConnection()) {
+			String sql = "INSERT INTO account (username, password) " +
 					" VALUES (?, ?) RETURNING *";
 			PreparedStatement statement = connection.prepareStatement(sql);
 			
