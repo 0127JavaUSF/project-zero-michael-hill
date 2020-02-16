@@ -15,8 +15,7 @@ public class Input {
 	public static int getIntInRange(int min, int max) {
 		int selection = 0;
 		outer: do {
-			System.out.println("Please enter a number between " + min +
-				" and " + max);
+			System.out.println("Please enter the number that matches desired action: ");
 			
 			while(!scanner.hasNextInt()) {
 				scanner.nextLine();
